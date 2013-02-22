@@ -1,0 +1,13 @@
+Overview:
+Writing code to do a monte carlo simulation on different blackjack strategies.
+
+Bugs:
+Read blackjack.py
+
+Todo:
+Read blackjack.py
+
+Thoughts:
+I need to collect different card counting strategies.
+I need to learn how to use matplotlib to do a 3d heatmap of odds
+I wonder if the books are right.
