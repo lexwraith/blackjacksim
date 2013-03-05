@@ -8,7 +8,7 @@ Currently assuming house wins in blackjack tie
 
 standard = ["A",2,3,4,5,6,7,8,9,10,10,10,10]
 from random import shuffle
-
+wizard = True
 class decks:
 	"""Effectively the shoe"""
 	def __init__(self,size,decktype):
@@ -18,6 +18,7 @@ class decks:
 		self.generate()
 		self.garbage = []
 		self.count = 0
+
 	def generate(self):
 		self.shoe = [(self.deckstyle[i]) for i in range(13) for z in range(4) for j in range(self.size)]
 		for x in range(2): shuffle(self.shoe)
@@ -60,6 +61,7 @@ class player:
 		self.done = False
 		self.bet = 0
 		self.betbig = False
+
 	def eval(self):
 		if("A" not in self.hand): 
 			return(sum(self.hand))
@@ -111,6 +113,17 @@ class table:
 		return sum(self.hand)
 
 
+
+def deal(player,shoe):
+	mybuffer = shoe.spit()
+	if(mybuffer in [2,3,4,5,6,7]):
+		shoe.count += 1
+	if(mybuffer == 10):
+		shoe.count -= 1
+	if(mybuffer == "A"):
+		shoe.count -= 1
+	player.get(mybuffer)
+
 def runtests(numplayers,shoesize,magicnumber,bankroll,lowbet,highbet):
 	players = [player(bankroll,lowbet,highbet) for z in range(numplayers)]
 	table = player(1000000,5,25)
@@ -134,22 +147,8 @@ def runtests(numplayers,shoesize,magicnumber,bankroll,lowbet,highbet):
 		#Dealing the cards
 		for z in range(2):
 			for x in range(len(players)):
-				mybuffer = shoe.spit()
-				if(mybuffer in [2,3,4,5,6,7]):
-					shoe.count += 1
-				if(mybuffer == 10):
-					shoe.count -= 2
-				if(mybuffer == "A"):
-					shoe.count -= 1
-				players[x].get(mybuffer)
-			mybuffer = shoe.spit()
-			if(mybuffer in [2,3,4,5,6,7]):
-				shoe.count += 1
-			if(mybuffer == 10):
-				shoe.count -= 2
-			if(mybuffer == "A"):
-				shoe.count -= 1
-			table.get(mybuffer)
+				deal(players[x],shoe)
+			deal(table,shoe)
 		
 
 		#Check if a player got blackjack 
@@ -160,33 +159,25 @@ def runtests(numplayers,shoesize,magicnumber,bankroll,lowbet,highbet):
 		
 		#Players turn to hit/stand
 		for person in players:
-			#Arbitary rule hitting while under 17
-			while(person.eval() < 12):
-				mybuffer = shoe.spit()
-				if(mybuffer in [2,3,4,5,6,7]):
-					shoe.count += 1
-				if(mybuffer == 10):
-					shoe.count -= 2
-				if(mybuffer == "A"):
-					shoe.count -= 1
-				person.get(mybuffer)
-				if(person.eval() > 21):
-					person.lost()
-					shoe.get(person.rem())
-			if(person.eval() > 11 and shoe.count > 12):
-				mybuffer = shoe.spit()
-				if(mybuffer in [2,3,4,5,6,7]):
-					shoe.count += 1
-				if(mybuffer == 10):
-					shoe.count -= 2
-				if(mybuffer == "A"):
-					shoe.count -= 1
-				person.get(mybuffer)
-				if(person.eval() > 21):
-					person.lost()
-					shoe.get(person.rem())
+			if(wizard):
+				while(True):
+					if person.eval >= 17: break;
+					if person.eval() < 12: deal(player,shoe)
+					elif person.eval() < 17 and table.eval() < 12: deal(player,shoe)
+					
 
-		
+			else:
+				while(person.eval() < 12 and shoe.count < magicnumber):
+					deal(person,shoe)
+					if(person.eval() > 21):
+						person.lost()
+						shoe.get(person.rem())
+				if(person.eval() > 11 and shoe.count > magicnumber):
+					deal(person,shoe)
+					if(person.eval() > 21):
+						person.lost()
+						shoe.get(person.rem())
+			
 		#If dealer has 21, everyone automatically loses (for now)
 		if(table.eval() == 21):
 			for person in players:
@@ -195,14 +186,7 @@ def runtests(numplayers,shoesize,magicnumber,bankroll,lowbet,highbet):
 		#Dealer's turn to get cards
 		while(table.eval() < 18 and "A" in table.hand):
 			#Arbitrary hit at soft 17 and lower
-			mybuffer = shoe.spit()
-			if(mybuffer in [2,3,4,5,6,7]):
-				shoe.count += 1
-			if(mybuffer == 10):
-				shoe.count -= 2
-			if(mybuffer == "A"):
-				shoe.count -= 1
-			table.get(mybuffer)
+			deal(table,shoe)
 		
 		#Check to see if dealer is over
 		if(table.eval() > 21):
@@ -221,20 +205,27 @@ def runtests(numplayers,shoesize,magicnumber,bankroll,lowbet,highbet):
 			else:
 				person.bank += person.bet
 
-
-		#print([players[x].eval() for x in range(numplayers)],table.eval())
-		#print([players[x].hand for x in range(numplayers)])
-
-		#Takeback all cards and put it in garbage
 		for person in players:
 			shoe.get(person.rem())
+			shoe.get(table.rem())
 			person.done = False
 	return players[0].bank
 
 last = 5
 results = []
-while last < 2500 and last > 0:
-	last = runtests(1,5,17,2500,5,25)
-	print last
-	results.append(last)
+
+PLAYERS = 1
+DECKS = 5
+SPECIAL = 10
+INITIAL = 2500
+MINBET = 5
+MAXBET = 25
+
+for i in range(100):
+	while last < 2500 and last > 0:
+		last = runtests(PLAYERS,DECKS,SPECIAL,INITIAL,MINBET,MAXBET)
+		results.append(last)
+	if results < INITIAL: SPECIAL -= 1
+	if results > INITIAL: SPECIAL += 1
+	last = 5
 print results
