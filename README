@@ -5,7 +5,11 @@ Bugs:
 Read blackjack.py
 
 Todo:
-Read blackjack.py
+A more concise betting system as opposed to small vs big bets
+Compare against a random or conservative player
+Implement "non perfect" player who forgets counts
+Possibly implement genetic algorithm to fine tune count
+
 
 Thoughts:
 I need to collect different card counting strategies.
