@@ -4,11 +4,15 @@ Need to implement blackjack check
 Surrendering can allow you to get half your bet
 Implement "stand" flag for players
 Currently assuming house wins in blackjack tie
+Implement "yellow card" signifying end of desk.
 """
 
 standard = ["A",2,3,4,5,6,7,8,9,10,10,10,10]
 from random import shuffle
+import numpy as np
+
 wizard = True
+
 class decks:
 	"""Effectively the shoe"""
 	def __init__(self,size,decktype):
