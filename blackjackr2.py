@@ -38,6 +38,7 @@ class shoe:
         self.count += 1
         if self.count > self.yellowcard : self.reset = True
         todeal = self.deck[0]
+        if(not todeal == "A"): (int(todeal))
         self.deck = np.delete(self.deck,0)
         return todeal
 
@@ -52,24 +53,23 @@ class player:
         self.betbig = False
     
     def evalhand(self):
-        if("A" not in self.hand):
-            return(sum(self.hand))
+        if(not 11 in self.hand and not 1 in self.hand):
+            return sum(self.hand)
         else:
-            while("A" in self.hand):
-                self.hand[self.hand.index("A")] = 1
             while(sum(self.hand) > 21):
-                if(1 in self.hand):
+                if(11 in self.hand):
                     self.hand[self.hand.index(11)] = 1
                 else:
                     break
             return sum(self.hand)
-    
+
     def get(self,card):
-        if(card == "A"):
-            self.hand.append("A")
+        if(card == "A" and sum(self.hand) <= 10):
+            self.hand.append(11)
+        elif(card == "A"):
+            self.hand.append(1)
         else:
-            print card
-            self.hand.append(card)
+            self.hand.append(int(card))
 
     def reset(self):
         self.hand = []
@@ -79,7 +79,9 @@ class player:
 
 x = shoe(2)
 jamie = player(1000)
-while(not "A" in jamie.hand):
+for z in range(5):
     jamie.get(x.deal())
+jamie.show()
+print(jamie.evalhand())
 jamie.show()
 
