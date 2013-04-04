@@ -78,6 +78,8 @@ class player:
         print(self.hand)
 
 x = shoe(2)
+players = np.array([player(1000),player(1000)],dtype=object)
+players[:].get(x.deal())
 jamie = player(1000)
 for z in range(5):
     jamie.get(x.deal())
