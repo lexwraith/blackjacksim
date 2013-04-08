@@ -2,7 +2,7 @@ Overview:
 Writing code to do a monte carlo simulation on different blackjack strategies.
 
 Bugs:
-Read blackjackr2.py
+Doing the financials stage is currently broken.
 
 Todo:
 Finish the runtest function and have it spit out results in np.array
@@ -12,6 +12,7 @@ Implement "non perfect" player who forgets counts
 Possibly implement genetic algorithm to fine tune count
 
 Thoughts:
+According to Blackjackaudit by Deepnet Tech, 1-6 players has no effect on EV.
+There are arbitrary thresholds for truecount indices. This is problematic.
 I need to collect different card counting strategies.
 I need to learn how to use matplotlib to do a 3d heatmap of odds
-I wonder if the books are right.
