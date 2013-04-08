@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 """
 I decided to make the shoe NumPy and the hand NOT NumPy.
 It made sense to make the shoe NumPy, especially with larger decks.
@@ -222,10 +223,10 @@ def runtest(num_players,iterations = 1000,numdecks = 1,initial_bank = 1000):
                 seat.mycount = 0
         tabledealer.hand = []
                 
-    for seat in table:
-        print seat.bank
+    
 
-    return table
+    return np.array([seat.bank for seat in table])
         
-runtest(5,1000)
-
+myarray = np.array([runtest(1, iterations = 100) for z in range(100)])
+print (sum(myarray)/(100*100*1000))
+plt.hist(myarray)
