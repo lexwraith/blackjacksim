@@ -2,13 +2,13 @@ Overview:
 Writing code to do a monte carlo simulation on different blackjack strategies.
 
 Bugs:
-Doing the financials stage is currently broken.
+The variance is...extreme?
 
 Todo:
-Finish the runtest function and have it spit out results in np.array
 A more concise betting system as opposed to small vs big bets
 Compare against ANY counting system versus a casual player
 Implement "non perfect" player who forgets counts
+	Currently the forget chance is .5
 Possibly implement genetic algorithm to fine tune count
 
 Thoughts:

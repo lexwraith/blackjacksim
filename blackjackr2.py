@@ -142,7 +142,7 @@ def dealplayer(shoe,player,table):
         card_counters.count(dealing)
     player.get(dealing)
 
-def runtest(num_players,numdecks = 1,initial_bank = 1000):
+def runtest(num_players,iterations = 1000,numdecks = 1,initial_bank = 1000):
     tableshoe = shoe(numdecks)
     """
     Unsure if I want to make dealer part of the table.
@@ -157,64 +157,75 @@ def runtest(num_players,numdecks = 1,initial_bank = 1000):
     Is there a point in making a wager memory slot?
     For now I'm ignoring this.
     """
+    for z in range(iterations):
 
-    #Initial deal
-    for i in range(2):
+        #Initial deal
+        for i in range(2):
+            for seat in table:
+                dealplayer(tableshoe,seat,table)
+            dealplayer(tableshoe,tabledealer,table)
+        
+        #Check for blackjack
         for seat in table:
-            dealplayer(tableshoe,seat,table)
-        dealplayer(tableshoe,tabledealer,table)
-    
-    #Check for blackjack
-    for seat in table:
-        if(seat.evalhand() == 21):
-            seat.bank += seat.high * 1.5 if seat.betbig else seat.low * 1.5
+            if(seat.evalhand() == 21):
+                seat.bank += seat.high * 1.5 if seat.betbig else seat.low * 1.5
+                seat.done = True
+
+        #Player options
+        for seat in table:
+            if(seat.done): continue
+            while(seat.evalhand() <= 10):
+                dealplayer(tableshoe,seat,table)
+            #Arbitrary counting rule 1
+            if(seat.evalhand() <= 12 and seat.mycount/numdecks < -1):
+                dealplayer(tableshoe,seat,table)
+            #Arbitrary counting rule 2
+            if(seat.evalhand() <= 15 and seat.mycount/numdecks < -2):
+                dealplayer(tableshoe,seat,table)
             seat.done = True
 
-    #Player options
-    for seat in table:
-        if(seat.done): continue
-        while(seat.evalhand() <= 10):
-            dealplayer(tableshoe,seat,table)
-        #Arbitrary counting rule 1
-        if(seat.evalhand() <= 12 and seat.mycount/numdecks < -1):
-            dealplayer(tableshoe,seat,table)
-        #Arbitrary counting rule 2
-        if(seat.evalhand() <= 15 and seat.mycount/numdecks < -2):
-            dealplayer(tableshoe,seat,table)
-        seat.done = True
 
+            #At this point I am considering implementing basic strategy
+            #for the non-counting player
 
-        #At this point I am considering implementing basic strategy
-        #for the non-counting player
+        #Dealer checks for blackjack
+        if(tabledealer.evalhand() == 21):
+            pass
 
-    #Dealer checks for blackjack
-    if(tabledealer.evalhand() == 21):
-        pass
+        #Dealer options
+        while(tabledealer.evalhand() < 18):
+            dealplayer(tableshoe,tabledealer,table)
 
-    #Dealer options
-    while(tabledealer.evalhand() < 18):
-        dealplayer(tableshoe,tabledealer,table)
-
-    #Check if dealer busts
-    if(tabledealer.evalhand > 21):
-        for seat in table:
-            seat.bank += seat.high if seat.betbig else seat.low
-    else:
-    #Evaluate remaining vs dealer
-        for seat in table:
-            if (seat.evalhand() > 21) or (tabledealer.evalhand >= seat.evalhand()):
-                seat.bank -= seat.high if seat.betbig else seat.low
-            else:
+        #Check if dealer busts
+        if(tabledealer.evalhand() > 21):
+            for seat in table:
                 seat.bank += seat.high if seat.betbig else seat.low
-    #Check if we need a new shoe
+        else:
+        #Evaluate remaining vs dealer
+            for seat in table:
+                #Couldn't make this one condition. Damn python short circuits.
+                if (seat.evalhand() > 21):
+                    seat.bank -= seat.high if seat.betbig else seat.low
+                elif(tabledealer.evalhand() >= seat.evalhand()):
+                    seat.bank -= seat.high if seat.betbig else seat.low
+                else:
+                    seat.bank += seat.high if seat.betbig else seat.low
 
-    for seats in table:
-        print seats.hand,seats.bank,seats.mycount
-  
-    print tabledealer.hand
 
-    if(tableshoe.reset):
-        tableshoe = shoe(numdecks)
+        #Cleanup stage
+        for seat in table:
+            seat.done = False
+            seat.hand = []
+        if(tableshoe.reset):
+            tableshoe = shoe(numdecks)
+            for seat in table:
+                seat.mycount = 0
+        tabledealer.hand = []
+                
+    for seat in table:
+        print seat.bank
 
+    return table
+        
 runtest(5,1000)
 
