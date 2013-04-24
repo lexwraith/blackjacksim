@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pp
+
 """
 I decided to make the shoe NumPy and the hand NOT NumPy.
 It made sense to make the shoe NumPy, especially with larger decks.
@@ -59,6 +61,7 @@ class player:
         self.bet = 0
         self.mycount = 0
         self.betbig = False
+        self.blackjack = False
         self.countsystem = countsystem
         self.countaccuracy = countaccuracy
 
@@ -119,7 +122,9 @@ class dealer:
         print(self.hand)
 
     def cardup(self):
+        #This is the card that players can see AKA the face up card.
         return self.hand[0]
+
     def reset(self):
         self.hand = []
 
@@ -156,19 +161,10 @@ def runtest(num_players,iterations = 1000,numdecks = 1,initial_bank = 1000,count
     table = np.array([player(initial_bank,countaccuracy = 50) for z in range(num_players)])
     
     #Placing bets
-    #HYPOTHESIS: A deck with high face cards is FAVORABLE
-    #to the player. True count of 1 is arbitrary.
-    for seat in table:
-        if float(seat.mycount)/numdecks > 10:
-            """
-            This means there are 10 more high cards in the deck
-            than low cards, thus an advantage to the player, 
-            which means they should bet bigger.
-            """
-            seat.betbig = True
-        else:
-            seat.betbig = False
-
+    """
+    Is there a point in making a wager memory slot?
+    For now I'm ignoring this.
+    """
     for z in range(iterations):
 
         #Initial deal
@@ -182,31 +178,40 @@ def runtest(num_players,iterations = 1000,numdecks = 1,initial_bank = 1000,count
             if(seat.evalhand() == 21):
                 seat.bank += seat.high * 1.5 if seat.betbig else seat.low * 1.5
                 seat.done = True
+                seat.blackjack = True
 
         #Player options
-        for seat in table:
-            if(seat.done): continue
-            while(seat.evalhand() <= 10):
-                dealplayer(tableshoe,seat,table)
-            if(tabledealer.cardup() in [7,8,9,10,1,11]):
-                #If faceup card is 7-A
-                while(seat.evalhand() <= 16):
+        if(counting):
+            for seat in table:
+                if(seat.done): continue
+                while(seat.evalhand() <= 10):
                     dealplayer(tableshoe,seat,table)
-            else:
-                #If faceup card is 2-6
-                while(seat.evalhand() <= 18):
+                #Arbitrary counting rule 1
+                if(seat.evalhand() <= 12 and seat.mycount/numdecks < -1):
                     dealplayer(tableshoe,seat,table)
-            if(counting):
-                #Arbitrary counting rule addition 1
-                print(float(seat.mycount)/numdecks)
-                if(seat.evalhand() <= 12 and float(seat.mycount)/numdecks < -10):
-                    dealplayer(tableshoe,seat,table)
-                #Arbitrary counting rule addition 2
-                if(seat.evalhand() <= 15 and float(seat.mycount)/numdecks < -15):
+                #Arbitrary counting rule 2
+                if(seat.evalhand() <= 15 and seat.mycount/numdecks < -2):
                     dealplayer(tableshoe,seat,table)
                 seat.done = True
-            else:
-                seat.done   
+        else: 
+            for seat in table:
+                if(seat.done): continue
+                while(seat.evalhand() <= 10):
+                    dealplayer(tableshoe,seat,table)
+                if(tabledealer.cardup() in [7,8,9,10,"A"]):
+                    #If faceup card is 7-A
+                    while(seat.evalhand() <= 16):
+                        dealplayer(tableshoe,seat,table)
+                    seat.done = True
+                else:
+                    #If faceup card is 2-6
+                    while(seat.evalhand() <= 18):
+                        dealplayer(tableshoe,seat,table)
+                    seat.done = True
+
+
+
+
 
         #Dealer options
         while(tabledealer.evalhand() < 18):
@@ -219,6 +224,7 @@ def runtest(num_players,iterations = 1000,numdecks = 1,initial_bank = 1000,count
         #Dealer checks for blackjack
         elif(tabledealer.evalhand() == 21):
             for seat in table:
+                if(seat.blackjack): continue
                 seat.bank -= seat.high if seat.betbig else seat.low
         else:
         #Evaluate remaining vs dealer
@@ -231,6 +237,7 @@ def runtest(num_players,iterations = 1000,numdecks = 1,initial_bank = 1000,count
                 else:
                     seat.bank += seat.high if seat.betbig else seat.low
 
+
         #Cleanup stage
         for seat in table:
             seat.done = False
@@ -240,22 +247,22 @@ def runtest(num_players,iterations = 1000,numdecks = 1,initial_bank = 1000,count
             for seat in table:
                 seat.mycount = 0
         tabledealer.hand = []
-                    
+                
+    
+
     return np.array([seat.bank for seat in table])
         
 def runlayer1():
     #Initialize elements that play 100 hands each
-    myarray = np.array([runtest(1,numdecks = 1, iterations = 100,counting = False) for z in range(100)])
+    myarray = np.array([runtest(1,numdecks = 5, iterations = 100) for z in range(100)])
+    print myarray
     losers = np.where([myarray<1000])
-    print losers[1]
-    print len(losers[1])
+    print losers
     #Get return percentage of each element
     myarray = (myarray - 1000)/1000
-    #Average return across all elements across 100 hands PER hand
-    print (sum(myarray)/100/100)
-    #Average return across all elements across 100 hands
+    print myarray
+    #Average return across all elements
     return (sum(myarray)/100)
-
 
 """with open("mydata.txt","w") as f:
     for z in range(1):
