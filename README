@@ -2,7 +2,8 @@ Overview:
 Writing code to do a monte carlo simulation on different blackjack strategies.
 
 Version History
-1.0 -> 	Examine runtest for parameters (count = True, countaccuracy = 100, etc.)
+1.0 -> 	Blackjackr2.py is the real file. Others are tests/revisions.
+	Examine runtest for parameters (count = True, countaccuracy = 100, etc.)
 	Runlayer1() is the overarching function to call runtest. Not necessary.
 	Currently produces roughly a 50% higher EV than not counting. Roughly
 		+.3% per hand using one deck.
