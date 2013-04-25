@@ -1,5 +1,10 @@
 import numpy as np
+import cProfile
+import pstats
 import matplotlib.pyplot as plt
+from IPython.parallel import Client
+import pp
+
 """
 I decided to make the shoe NumPy and the hand NOT NumPy.
 It made sense to make the shoe NumPy, especially with larger decks.
@@ -38,7 +43,8 @@ class shoe:
         if self.count > self.yellowcard : self.reset = True
         todeal = self.deck[0]
         if(not todeal == "A"): (int(todeal))
-        self.deck = np.delete(self.deck,0)
+        #self.deck = np.delete(self.deck,0)
+        self.deck = self.deck[1:]
         return todeal
 
 
@@ -47,7 +53,8 @@ class player:
                  bank,
                  lowbet = 25, 
                  hibet = 100,
-                 countsystem = {"2":1, "3":1, "4":1, "5":1, "6":1, 
+                 countsystem = {"1":-1, "11":-1,
+                                "2":1, "3":1, "4":1, "5":1, "6":1, 
                                 "7":0, "8":0, "9":0, "10":-1, "A":-1},
                  countaccuracy = 100
                  ):
@@ -153,23 +160,24 @@ def runtest(num_players,iterations = 1000,numdecks = 1,initial_bank = 1000,count
     table = np.append(table,[player(initial_bank) for z in range(num_players)])
     """
     tabledealer = dealer()
-    table = np.array([player(initial_bank,countaccuracy = 50) for z in range(num_players)])
+    table = np.array([player(initial_bank,countaccuracy = 100) for z in range(num_players)])
     
-    #Placing bets
-    #HYPOTHESIS: A deck with high face cards is FAVORABLE
-    #to the player. True count of 1 is arbitrary.
-    for seat in table:
-        if float(seat.mycount)/numdecks > 10:
-            """
-            This means there are 10 more high cards in the deck
-            than low cards, thus an advantage to the player, 
-            which means they should bet bigger.
-            """
-            seat.betbig = True
-        else:
-            seat.betbig = False
+    
 
     for z in range(iterations):
+        #Placing bets
+        #HYPOTHESIS: A deck with high face cards is FAVORABLE
+        #to the player. True count of 1 is arbitrary.
+        for seat in table:
+            if float(seat.mycount)/numdecks > 10:
+                """
+                This means there are 10 more high cards in the deck
+                than low cards, thus an advantage to the player, 
+                which means they should bet bigger.
+                """
+                seat.betbig = True
+            else:
+                seat.betbig = False
 
         #Initial deal
         for i in range(2):
@@ -198,7 +206,6 @@ def runtest(num_players,iterations = 1000,numdecks = 1,initial_bank = 1000,count
                     dealplayer(tableshoe,seat,table)
             if(counting):
                 #Arbitrary counting rule addition 1
-                print(float(seat.mycount)/numdecks)
                 if(seat.evalhand() <= 12 and float(seat.mycount)/numdecks < -10):
                     dealplayer(tableshoe,seat,table)
                 #Arbitrary counting rule addition 2
@@ -240,35 +247,68 @@ def runtest(num_players,iterations = 1000,numdecks = 1,initial_bank = 1000,count
             for seat in table:
                 seat.mycount = 0
         tabledealer.hand = []
-                    
+    
+    for seat in table:
+        if seat.bank < 0:
+            seat.bank = 0
     return np.array([seat.bank for seat in table])
         
-def runlayer1():
+def runlayer1(count):
     #Initialize elements that play 100 hands each
-    myarray = np.array([runtest(1,numdecks = 1, iterations = 100,counting = False) for z in range(100)])
+    myarray = np.array([runtest(1,numdecks = 1, iterations = 100,counting = count) for z in range(100)])
     losers = np.where([myarray<1000])
-    print losers[1]
-    print len(losers[1])
+    #print losers[1]
+    #print len(losers[1])
     #Get return percentage of each element
     myarray = (myarray - 1000)/1000
     #Average return across all elements across 100 hands PER hand
-    print (sum(myarray)/100/100)
+    #print (sum(myarray)/100/100)
     #Average return across all elements across 100 hands
-    return (sum(myarray)/100)
+    er = float(sum(myarray))
+    er /= 10000
+    return er
+    #return (sum(myarray)/100)
 
 
-"""with open("mydata.txt","w") as f:
-    for z in range(1):
-        num = runlayer1()
-        f.write(str((float(num))))
+
+"""
+rc = Client()
+dview = rc[:]
+dview.apply(runlayer1,block = True)
+print dview[0]
+"""
+"""
+s = pp.Server()
+#f1 = s.submit(runlayer1,(),(runtest,shoe,player,dealer,dealplayer),("numpy as np",))
+jobs = []
+for z in range(10):
+    jobs.append(s.submit(runtest,(1,),(shoe,player,dealer,dealplayer),("numpy as np",)))
+results = np.array([float(job() - 1000)/1000 for job in jobs])
+results = sum(results)/10000
+print results
 """
 
 
-#job_server = pp.Server()
-#myarray = np.array([100])
 
-#f1 = job_server.submit(runlayer1(),(),(runtest,),("numpy as np",))
-#f2 = job_server.submit(runlayer1(),(),(runtest,),("numpy as np",))
-mytarget = np.array([runlayer1() for z in range(1)])
-print mytarget
-#plt.hist(mytarget)
+
+if __name__ == "__main__":
+   # mytarget = np.array([runlayer1(True) for z in range(10)])
+    #print mytarget
+    #cProfile.run('mytarget=np.array([runlayer1(True) for z in range(100)])','speed_stats.prof')
+    #p = pstats.Stats('speed_stats.prof')
+    #p.strip_dirs().sort_stats('time').print_stats(24)
+    #print mytarget
+    #plt.hist(mytarget)
+    """
+    with open("notcounting.txt","w") as f:
+        for z in range(1000):
+            num = runlayer1(False)
+            f.write(str(num))
+            f.write("\n")
+    """
+    with open("counting.txt","w") as f:
+        for z in range(100):
+            num = runlayer1(True)
+            f.write(str(num))
+            f.write("\n")
+    
