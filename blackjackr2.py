@@ -168,16 +168,17 @@ def runtest(num_players,iterations = 1000,numdecks = 1,initial_bank = 1000,count
         #Placing bets
         #HYPOTHESIS: A deck with high face cards is FAVORABLE
         #to the player. True count of 1 is arbitrary.
-        for seat in table:
-            if float(seat.mycount)/numdecks > 10:
-                """
-                This means there are 10 more high cards in the deck
-                than low cards, thus an advantage to the player, 
-                which means they should bet bigger.
-                """
-                seat.betbig = True
-            else:
-                seat.betbig = False
+        if(counting):
+            for seat in table:
+                if float(seat.mycount)/numdecks > 5:
+                    """
+                    This means there are 10 more high cards in the deck
+                    than low cards, thus an advantage to the player, 
+                    which means they should bet bigger.
+                    """
+                    seat.betbig = True
+                else:
+                    seat.betbig = False
 
         #Initial deal
         for i in range(2):
@@ -211,9 +212,7 @@ def runtest(num_players,iterations = 1000,numdecks = 1,initial_bank = 1000,count
                 #Arbitrary counting rule addition 2
                 if(seat.evalhand() <= 15 and float(seat.mycount)/numdecks < -15):
                     dealplayer(tableshoe,seat,table)
-                seat.done = True
-            else:
-                seat.done   
+
 
         #Dealer options
         while(tabledealer.evalhand() < 18):
@@ -222,15 +221,18 @@ def runtest(num_players,iterations = 1000,numdecks = 1,initial_bank = 1000,count
         #Check if dealer busts
         if(tabledealer.evalhand() > 21):
             for seat in table:
+                if(seat.done):continue
                 seat.bank += seat.high if seat.betbig else seat.low
         #Dealer checks for blackjack
         elif(tabledealer.evalhand() == 21):
             for seat in table:
+                if(seat.done):continue
                 seat.bank -= seat.high if seat.betbig else seat.low
         else:
         #Evaluate remaining vs dealer
             for seat in table:
                 #Couldn't make this one condition. Damn python short circuits.
+                if(seat.done):continue
                 if (seat.evalhand() > 21):
                     seat.bank -= seat.high if seat.betbig else seat.low
                 elif(tabledealer.evalhand() >= seat.evalhand()):
@@ -299,15 +301,14 @@ if __name__ == "__main__":
     #p.strip_dirs().sort_stats('time').print_stats(24)
     #print mytarget
     #plt.hist(mytarget)
-    """
-    with open("notcounting.txt","w") as f:
-        for z in range(1000):
+    with open("notcounting3.txt","w") as f:
+        for z in range(500):
             num = runlayer1(False)
             f.write(str(num))
             f.write("\n")
-    """
-    with open("counting.txt","w") as f:
-        for z in range(100):
+    
+    with open("counting3.txt","w") as f:
+        for z in range(500):
             num = runlayer1(True)
             f.write(str(num))
             f.write("\n")
