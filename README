@@ -1,18 +1,21 @@
 Overview:
 Writing code to do a monte carlo simulation on different blackjack strategies.
 
+Version History
+1.0 -> 	Examine runtest for parameters (count = True, countaccuracy = 100, etc.)
+	Runlayer1() is the overarching function to call runtest. Not necessary.
+	Currently produces roughly a 50% higher EV than not counting. Roughly
+		+.3% per hand using one deck.
+
 Bugs:
-The variance is...extreme?
+Unknown.
 
 Todo:
-A more concise betting system as opposed to small vs big bets
-Compare against ANY counting system versus a casual player
-Implement "non perfect" player who forgets counts
-	Currently the forget chance is .5
-Possibly implement genetic algorithm to fine tune count
+Optimize runtest().
+Format to Pep8 and erase commented code.
+Possibly implement genetic algorithm to fine tune count.
+Plot/draw data from text files.
 
 Thoughts:
 According to Blackjackaudit by Deepnet Tech, 1-6 players has no effect on EV.
 There are arbitrary thresholds for truecount indices. This is problematic.
-I need to collect different card counting strategies.
-I need to learn how to use matplotlib to do a 3d heatmap of odds
