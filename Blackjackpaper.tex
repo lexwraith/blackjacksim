@@ -1,18 +1,108 @@
 \documentclass[11pt,letterpaper]{article}
 \usepackage[letterpaper,margin = 1.5in]{geometry}
-\title{Blackjack Counting
-\\\normalsize{Player Advantage Using Hi-Lo}}
+\title{Project Report
+\\\normalsize{Blackjack Card Counting}
+\\{https://github.com/lexwraith/blackjacksim.git}}
 
 \author{Michael Nguyen}
 \begin{document}
 \maketitle
 
 \part{Introduction}
-\part{Hypothesis}
-\part{Methodology}
-\part{Results}
-\part{Analysis}
-\part{Conclusion}
-\part{Criticism}
+\indent \indent Does counting cards give a player an advantage? The common consensus is a sound "yes", but what proof is there? The age-old anecdote of a famous card counter putting a casino out of business or scenes from the movie "Rain Man" featuring an autistic-savant come to mind, but who has actually confirmed any advantage to blackjack counting? What's to stop casinos from hosting fake sites claiming that counting does in fact work when the reality is it destroys the player bankroll using a fabricated promise? 
 
+\indent The purpose of this paper is to answer the question, "Does counting give players an advantage in comparison to basic strategy in blackjack?" This is a simple yes or no question, and can be proven if, on average, a counting player makes a greater return on his initial bankroll than the non-counting player.
+
+\part{Hypothesis}
+\indent \indent The idea of counting is simple. When there are more cards with the value of ten or aces in the deck, the player has an advantage. The reasons are twofold:
+
+\begin{enumerate}
+\item The dealer has a higher chance of busting due to having to hit below a hard 17.
+\item The player has a higher chance of blackjack.
+\end{enumerate}
+
+As a consequence of said advantage, a player should bet more if the shoe is stacked in his or her favor. Of course, the average player who isn't counting would not know if there are more tens and aces in the deck, but the advantage is not overwhelming due to shoes getting reset. Thus, the statement that this paper and experiment seeks to qualify as true or false is as follows:
+\\\\
+\emph{A basic counting system in blackjack will yield a higher expectancy value per hand in the long run than no counting system.}
+
+
+
+\part{Methodology}
+A list of constraints and rules to this paper:
+\begin{enumerate}
+\item This experiment uses basic blackjack rules with minor modifications.
+\subitem Dealer hits until hard 17.
+\subitem Players cannot surrender, split, or double.
+\subitem In any given simulation there is only one player and one dealer.
+\subitem Shoes reset randomly near the end of the shoe.
+\subitem Shoes consist of exactly 1 deck.
+\item The counting system used will be a basic hi-lo counting system.
+\subitem Cards $\in$ \{2,3,4,5,6\} are valued as 1.
+\subitem Cards $\in$ \{10,J,Q,K,A\} are valued as -1.
+\item Players are evaluated under uniform conditions.
+\subitem The player starts with \$1000 and bets either \$25 or \$100.
+\subitem The expected value will be determined as:
+\[(\frac{\$_{Ending}-\$_{Beginning}}{Hands\;Played})\]
+\item All players play using a basic foundation strategy.
+\subitem Players will always hit under 12.
+\subitem If the dealer's card up is $\in$ \{7,8,9,10,J,Q,K,A\} the player will hit until hard 17.
+\subitem If the dealer's card up is $\in$ \{2,3,4,5,6\} the player will hit until hard 18.
+\item Counting players have a few additions to basic strategy.
+\subitem Counting is defined as having a mental accumulator (the count) that adjusts with each seen card. At 0\% accuracy, no changes are ever made to the count, and at 100\% accuracy, every card that has a count value adjusts the count. Hypothetically at 50\%, only half the cards seen will change the count, and so on.
+\subitem Players will use a true count system which is determined by this equation:
+\[\frac{Count\;of\;Player}{Size\;of\;Shoe}\]
+Where the size of the shoe is determined by the number of decks within the shoe.
+\subitem Counting players will quadruple their bet to \$100 if the true count of a shoe is greater than 5.
+\subitem Counting players will hit more aggressively when at a hard 12 or hard 16 when the true count is below -10 and -15 respectively.
+
+\end{enumerate}
+
+The independent variable of the experiment is how a player counted. Two assignments are tested:
+\begin{enumerate}
+\item Players played and counted with 100\% accuracy.
+\item Players played and did not count at all.
+\subitem An implication of this is that the player does not use progressive betting, i.e. the player never bets \$100.
+\end{enumerate}
+The dependent variable and variable of interest using a few calculations is the expected value per hand.
+\begin{enumerate}
+\item Each sample represents one player playing exactly 100 hands.
+\item Each test is the average expected value of 100 samples.
+\item Each experiment is run with a different setting for its independent variable and consists of 5000 tests. Thus, each experiment is the result of 50,000,000 hands played.
+\end{enumerate}
+
+\part{Results}
+	\begin{center}
+	Table 1: 100\% Accuracy vs Non-Counting using 1 Deck\\
+		\begin{tabular}{l r}
+			\underline{Independent Variable} & 
+			\underline{Expected Value Per Hand}\\
+			100\% Counting Accuracy & .3237\%\\
+			Not Counting & .1823\%
+		\end{tabular}\newline\newline
+		
+	Table 2 (Auxiliary): 100/50/25\% Accuracy using 1-5 Decks\\
+		\begin{tabular}{l c c c c c}
+			{} & 
+			1 & 2 & 3 & 4 & 5\\
+			100\% 	& .3237\% & .2890\% & .2489\% & .2211\% & .2096\%\\
+			50\% 	& .2979\% & .2475\% & .2190\% & .1968\% & .1889\%\\
+			25\% 	& .2669\% & .2216\% & .1940\% & .1846\% & .1864\%\\
+		\end{tabular}
+	\end{center}
+
+\part{Analysis}
+Table 1 shows that there is roughly a doubling of return on investment per hand than not counting. Table 2 is an auxiliary table made out of curiousity: it shows that multiple decks and questionable counting accuracy scales off rather rapidly, especially with bad counting. 
+\part{Conclusion}
+It's very unlikely that the expected value per hand being roughly double of a normal strategy is a fluke. The reason why 5000 tests were used rather than 100 was that there was notable variance prior when using 100 tests. Thus we can say that it is extremey likely adopting a good counting strategy is likely to yield higher profit than not counting at all. This does not hold for questionable counting however, and it also doesn't hold when more than 1 deck is used. The advantages, as shown by the auxiliary table, fade rather quickly, especially if the player cannot pay attention and count. Because situations in the auxiliary table are more likely than finding a single deck blackjack booth and being able to count perfectly, it might not be wise to extrapolate this as blackjack being the ultimate money machine. It's likely that it is to the contrary as the auxiliary table was composed of 100 tests per value.
+\part{Criticism}
+A list of problems with the experiment, and possibly and explanation of why things were done the way they were:
+\begin{enumerate}
+\item Multiple players: According to an article in Blackjack Insider, the only thing that changes when playing with up to six players is the number of hands per hour. http://www.deepnettech.com/article6.html. The feature is actually implemented currently, but just unused.
+\item Blackjack options: The reason surrender, double, and split were omitted was because of their utility to the core game, or really, lack thereof. Surrender is not offered very often, and only is allows when certain cards are showing by the dealer after the initial deal. Double and split are really just more hits, and really don't alter the core game. However, there is a chance that doubles can serve as a pathway to greater profit with utilized with a counting system, but that can be someone else's experiment.
+\item Blackjack payout: Casinos have different rules to payout for blackjack, but 3:2 payout is very common. The counting system isn't reliant on getting blackjack however, and is more about winning hands in general.
+\item Counting system: The reason hi-lo was used was because it is the most common and basic counting system there is. There are plenty of other systems such as Zen, and even other types of counts entirely as in how counting is done, but the role of this paper is to simply see whether or not counting provides a positive change to returns provided by playing blackjack.
+\item Betting system: Usually, a player should play blackjack with an initial investment 100 times his or her big bet. In this simulation, the player only had 10 times, which means that many players lost all their money in the short run while it was possible for them to reap profits in the long run. This is arbitrary however, and is more realistic, as most people will not walk into a lower-end casino with \$6000 just to play \$15 blackjack. 
+\item "Basic" strategy: The basic strategy used is commonly passed out as cards to patrons at casinos. It bases the player decision on what the dealer's face up card is. A sample can be seen at: http://www.blackjackinfo.com/blackjack-rules.php.
+\item Additional strategy: What is interesting about counting systems is there is no explicit way to act based off of the count. The true counts used in this simulation were determined simply because they seemed reasonable as thresholds to the shoe being stacked in a player's favor. Future experiments should definitely modify these thresholds for player action, as considering a shoe as advantageous at count = 5 is significantly different from count = 10.
+\end{enumerate}
 \end{document}

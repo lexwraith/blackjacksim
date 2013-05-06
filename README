@@ -2,6 +2,9 @@ Overview:
 Writing code to do a monte carlo simulation on different blackjack strategies.
 
 Version History
+1.2 -> 	Blackjac.py is the file to run. EVPH is around .32% with single deck
+	counting.
+
 1.0 -> 	Blackjackr2.py is the real file. Others are tests/revisions.
 	Examine runtest for parameters (count = True, countaccuracy = 100, etc.)
 	Runlayer1() is the overarching function to call runtest. Not necessary.
@@ -9,14 +12,18 @@ Version History
 		+.3% per hand using one deck.
 
 Bugs:
-Unknown.
+Counting accuracy is currently embedded within the runtest function.
+	Need to extricate it out and add it to runexperiment function.
 
 Todo:
-Optimize runtest().
-Format to Pep8 and erase commented code.
+Add splits, doubles, surrenders
+Make the runtest method be able to change counting accuracy.
 Possibly implement genetic algorithm to fine tune count.
 Plot/draw data from text files.
 
 Thoughts:
+Currently counting EV is nearly double of single deck non counting at around .32% EVPH
 According to Blackjackaudit by Deepnet Tech, 1-6 players has no effect on EV.
 There are arbitrary thresholds for truecount indices. This is problematic.
+
+
